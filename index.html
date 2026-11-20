@@ -1039,18 +1039,18 @@ function saveGlobe() {
 function finale() {
   const title=element('h2','С наступающими праздниками!','final-postcard-title');
   const card=element('img','','final-postcard');
-  card.src="assets/f3bf178cfdbb9a26.png";
-  card.alt='Компания MARS. С наступающими праздниками! Пусть новый год принесёт здоровье, мир и благополучие. Справа — гастрономическая доска.';
+  card.src="assets/mars-postcard-wallpaper.png";
+  card.alt='Компания MARS. С наступающими праздниками! Пусть новый год принесёт здоровье, мир и благополучие. На открытке — гастрономическая доска.';
   const picture=element('picture','','final-postcard-picture');
   const mobile=element('source');
-  mobile.media='(orientation:portrait)';
+  mobile.media='(max-width:700px), (pointer:coarse) and (max-width:1000px)';
   mobile.srcset="assets/mars-postcard-portrait.png";
   picture.append(mobile,card);
   const actions=element('div','','row final-postcard-actions');
   const download=control('Скачать открытку',()=>{
     const link=element('a');
     link.href=card.currentSrc||card.src;
-    link.download=matchMedia(mobile.media).matches?'Финальная открытка Mars — для телефона.png':'Финальная открытка Mars — Гастрономическая доска.png';
+    link.download=matchMedia(mobile.media).matches?'Финальная открытка Mars — для телефона.png':'Финальная открытка Mars — для рабочего стола.png';
     link.click();
   },'primary');
   actions.append(download);
