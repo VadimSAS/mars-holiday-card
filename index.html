@@ -502,14 +502,28 @@ function softSnowFlake(color){
   ctx.fillRect(0,0,24,24);
   return sprite;
 }
+let cachedSnowFlakeAtlas;
+function snowFlakeAtlas(){
+  if(!cachedSnowFlakeAtlas){
+    const texture=new Image();
+    texture.src="assets/gift-snow-flakes.png";
+    const shapes=[[63,91,252,205],[425,78,246,218],[773,120,244,165],[1131,108,239,172],[65,430,223,214],[414,432,260,210],[784,439,238,197],[1148,434,236,184],[128,831,134,99],[412,821,246,153],[788,780,220,180],[1141,780,240,205]];
+    cachedSnowFlakeAtlas={texture,shapes};
+  }
+  return cachedSnowFlakeAtlas;
+}
+
+function snowFlakeRadius(random){
+  const group=random();
+  const variation=random();
+  return group<.48?.65+variation*.55:group<.86?1.1+variation*.75:1.75+variation*1.1;
+}
 function giftSnowEffect(box){
   const canvas=element('canvas','','gift-snow');
   canvas.setAttribute('aria-hidden','true');
   const ctx=canvas.getContext('2d');
   const sprite=softSnowFlake('#fffcf6');
-  const texture=new Image();
-  texture.src="assets/gift-snow-flakes.png";
-  const shapes=[[63,91,252,205],[425,78,246,218],[773,120,244,165],[1131,108,239,172],[65,430,223,214],[414,432,260,210],[784,439,238,197],[1148,434,236,184],[128,831,134,99],[412,821,246,153],[788,780,220,180],[1141,780,240,205]];
+  const {texture,shapes}=snowFlakeAtlas();
   const shadow=softSnowFlake('#775f4c');
   let frame=0;
   function stop(){
@@ -526,17 +540,16 @@ function giftSnowEffect(box){
     const unitX=canvas.width/1.44,unitY=canvas.height/1.15;
     const boxWidth=box.clientWidth;
     ctx.setTransform(unitX,0,0,unitY,.22*unitX,.11*unitY);
-    const flakes=Array.from({length:295},(_,index)=>{
+    const flakes=Array.from({length:800},(_,index)=>{
       const lid=Math.random()<.36;
       const direction=Math.random()<.5?-1:1;
       const x=lid?.095+Math.random()*.79:direction<0?-.063+Math.random()*.123:.944+Math.random()*.124;
       const end=lid?.143+Math.random()*.027:.85+Math.pow(Math.random(),.75)*.17;
-      const first=index<104;
-      const size=Math.random();
+      const first=index<260;
       return {lid,x,end,startY:first?-.085+Math.random()*(lid?.14:.46):-.09,
         phase:Math.random()*Math.PI*2,shape:shapes[index%shapes.length],turn:(Math.random()-.5)*2.3,spin:.14+Math.random()*.55,thickness:.6+Math.random()*.65,flutter:4.8+Math.random()*5,delay:first?Math.random()*.38:.45+Math.random()*9.3,
         duration:lid?.75+Math.random()*1.7:2.35+Math.random()*3.25,
-        radius:size<.48?.65+Math.random()*.55:size<.86?1.1+Math.random()*.75:1.75+Math.random()*1.1,opacity:.75+Math.random()*.25,drift:.008+Math.random()*.024};
+        radius:snowFlakeRadius(Math.random),opacity:.75+Math.random()*.25,drift:.008+Math.random()*.024};
     });
     const started=performance.now();
     const draw=now=>{
@@ -566,6 +579,7 @@ function giftSnowEffect(box){
           const flakeHeight=flakeWidth*(sh/sw)*flake.thickness*(phase===1?.58:1);
           ctx.save();
           ctx.translate(x,y);
+          ctx.scale(1,unitX/unitY);
           ctx.rotate(phase===1?flake.turn*.23:flake.turn+Math.sin(phase*12+flake.phase)*flake.spin);
           ctx.drawImage(texture,sx,sy,sw,sh,-flakeWidth/2,-flakeHeight/2,flakeWidth,flakeHeight);
           ctx.restore();
@@ -586,11 +600,12 @@ function photoSnowEffect(art,motionEnabled){
   const canvas=element('canvas','','photo-snow');
   canvas.setAttribute('aria-hidden','true');
   const context=canvas.getContext('2d');
+  const {texture,shapes}=snowFlakeAtlas();
   const samples=[[1053,588],[1066,588],[1092,588],[1105,588],[1118,588],[1131,588],[1157,588],[1183,588],[1196,588],[1248,588],[1261,588],[936,595],[949,595],[962,595],[975,595],[1001,595],[1027,595],[1040,595],[1053,595],[1066,595],[1079,595],[1092,595],[1105,595],[1118,595],[1131,595],[1144,595],[1196,595],[1222,595],[1235,595],[1248,595],[1261,595],[1274,595],[1287,595],[923,602],[936,602],[949,602],[975,602],[1001,602],[1014,602],[1040,602],[1053,602],[1066,602],[1105,602],[1131,602],[1144,602],[1157,602],[1170,602],[1183,602],[1209,602],[1222,602],[1235,602],[1248,602],[1261,602],[1274,602],[1287,602],[1300,602],[1339,602],[910,609],[923,609],[936,609],[949,609],[962,609],[975,609],[988,609],[1001,609],[1014,609],[1066,609],[1079,609],[1092,609],[1118,609],[1131,609],[1144,609],[1157,609],[1183,609],[1196,609],[1209,609],[1222,609],[1235,609],[1248,609],[1261,609],[1300,609],[923,616],[936,616],[949,616],[962,616],[975,616],[988,616],[1001,616],[1014,616],[1027,616],[1040,616],[1053,616],[1066,616],[1079,616],[1092,616],[1105,616],[1118,616],[1131,616],[1144,616],[1170,616],[1183,616],[1196,616],[1235,616],[1248,616],[1261,616],[1274,616],[1287,616],[923,623],[936,623],[949,623],[962,623],[975,623],[988,623],[1001,623],[1014,623],[1027,623],[1040,623],[1053,623],[1079,623],[1092,623],[1105,623],[1131,623],[1144,623],[1157,623],[1170,623],[1183,623],[1196,623],[962,630],[1001,630],[1066,630],[1131,630],[1144,630],[1183,630],[1196,630],[1209,630],[1222,630],[910,637],[1209,637]];
   const waves=[
-    {share:.40,delay:0,duration:5.8,lift:.27,cross:.14},
-    {share:.275,delay:.08,duration:6.25,lift:.24,cross:-.18},
-    {share:.325,delay:.17,duration:6.8,lift:.21,cross:.12}
+    {share:.40,delay:0,duration:6.8,lift:.27,cross:.14},
+    {share:.275,delay:.08,duration:7.35,lift:.24,cross:-.18},
+    {share:.325,delay:.17,duration:8.0,lift:.21,cross:.12}
   ];
   let frame=0, burst=0;
   function play(){
@@ -611,26 +626,46 @@ function photoSnowEffect(art,motionEnabled){
     sampleCanvas.height=art.naturalHeight;
     const sampleContext=sampleCanvas.getContext('2d',{willReadFrequently:true});
     sampleContext.drawImage(art,0,0);
-    const sprites=samples.map(([sx,sy])=>{
+    const colors=shapes.map((_,index)=>{
+      const [sx,sy]=samples[Math.floor((index+.5)*samples.length/shapes.length)];
       const [red,green,blue]=sampleContext.getImageData(sx,sy,1,1).data;
-      return softSnowFlake('rgb('+[red,green,blue].map(c=>Math.round(160+c*.37)).join(',')+')');
+      return 'rgb('+[red,green,blue].map(c=>Math.round(160+c*.37)).join(',')+')';
     });
+    let sprites=colors.map(softSnowFlake);
+    const makeTexturedSprites=()=>{
+      sprites=shapes.map(([sx,sy,sw,sh],index)=>{
+        const sprite=element('canvas');
+        sprite.width=36;
+        sprite.height=Math.round(36*sh/sw);
+        const ctx=sprite.getContext('2d');
+        ctx.drawImage(texture,sx,sy,sw,sh,0,0,sprite.width,sprite.height);
+        ctx.globalCompositeOperation='source-atop';
+        ctx.globalAlpha=.22;
+        ctx.fillStyle=colors[index];
+        ctx.fillRect(0,0,sprite.width,sprite.height);
+        return sprite;
+      });
+    };
+    if(texture.complete&&texture.naturalWidth)makeTexturedSprites();
+    else texture.decode().then(makeTexturedSprites,()=>{});
     const particles=waves.flatMap((wave,waveIndex)=>{
       const length=waveIndex===2?467-Math.round(467*.40)-Math.round(467*.275):Math.round(467*wave.share);
-      return Array.from({length},()=>{
+      return Array.from({length},(_,index)=>{
         const sampleIndex=Math.floor(random()*samples.length);
         const sample=samples[sampleIndex];
         const x=-.806+sample[0]/1536*1.81;
         const baseline=-.055+sample[1]/1536*1.81;
         const phase=random()*Math.PI*2;
-        return {sprite:sprites[sampleIndex],x,baseline,phase,
-          spread:(random()-.5)*.48+wave.cross,
+        return {shape:(index+waveIndex*5)%shapes.length,x,baseline,phase,
+          spread:(random()-.5)*.51+wave.cross,
+          turn:(random()-.5)*2.4,flutter:1.45+random()*1.4,
+          thickness:.64+random()*.64,
           lift:wave.lift*(.42+random()*.95),
-          delay:wave.delay+random()*.22,
+          delay:wave.delay+random()*.28,
           duration:wave.duration*(.81+random()*.21),
-          peak:.28+random()*.17,
-          radius:(.48+random()*.91)/size,
-          drift:.006+random()*.013};
+          peak:.30+random()*.17,
+          radius:snowFlakeRadius(random)/size,
+          drift:.006+random()*.022};
       });
     });
     const started=performance.now();
@@ -651,12 +686,19 @@ function photoSnowEffect(art,motionEnabled){
         const rising=progress<p.peak;
         const t=rising?progress/p.peak:(progress-p.peak)/(1-p.peak);
         const travel=rising?Math.sin(t*Math.PI/2):Math.cos(t*Math.PI/2);
-        const wave=Math.sin(elapsed*(1.55+p.drift*22)+p.phase);
+        const wave=Math.sin(elapsed*p.flutter+p.phase)+.27*Math.sin(elapsed*(p.flutter*1.73)+p.phase*.6);
         const x=p.x+p.spread*travel*(.7+.3*wave)+wave*p.drift*travel;
-        const y=p.baseline-p.lift*travel+Math.cos(elapsed*2.2+p.phase)*p.drift*.35*travel;
-        const radius=p.radius*(.74+.45*travel);
+        const y=p.baseline-p.lift*travel+Math.cos(elapsed*(p.flutter+.45)+p.phase)*p.drift*.42*travel;
+        const radius=p.radius*(.96+.04*travel);
         context.globalAlpha=Math.min(1,progress*16,(1-progress)*8)*(.59+.32*travel);
-        context.drawImage(p.sprite,x-radius,y-radius,radius*2,radius*2);
+        const sprite=sprites[p.shape];
+        const flare=radius*2.6;
+        const height=flare*sprite.height/sprite.width*p.thickness;
+        context.save();
+        context.translate(x,y);
+        context.rotate(p.turn+wave*.23);
+        context.drawImage(sprite,-flare/2,-height/2,flare,height);
+        context.restore();
       }
       context.restore();
       if(moving)frame=requestAnimationFrame(draw);
