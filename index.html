@@ -500,7 +500,8 @@ function giftSnowEffect(box){
   const canvas=element('canvas','','gift-snow');
   canvas.setAttribute('aria-hidden','true');
   const ctx=canvas.getContext('2d');
-  const sprite=softSnowFlake('#fffdf4');
+  const sprite=softSnowFlake('#fffcf6');
+  const shadow=softSnowFlake('#775f4c');
   let frame=0;
   function stop(){
     cancelAnimationFrame(frame);frame=0;
@@ -516,12 +517,16 @@ function giftSnowEffect(box){
     const unitX=canvas.width/1.44,unitY=canvas.height/1.15;
     const boxWidth=box.clientWidth;
     ctx.setTransform(unitX,0,0,unitY,.22*unitX,.11*unitY);
-    const flakes=Array.from({length:175},()=>{
+    const flakes=Array.from({length:220},(_,index)=>{
       const lid=Math.random()<.36;
       const direction=Math.random()<.5?-1:1;
-      const x=lid?.095+Math.random()*.79:direction<0?-.18+Math.random()*.235:.949+Math.random()*.234;
+      const x=lid?.095+Math.random()*.79:direction<0?-.063+Math.random()*.123:.944+Math.random()*.124;
       const end=lid?.143+Math.random()*.027:.85+Math.pow(Math.random(),.75)*.17;
-      return {lid,x,end,phase:Math.random()*Math.PI*2,delay:Math.random()*9,duration:lid?1.1+Math.random()*1.65:2.8+Math.random()*3.25,radius:.55+Math.random()*.85,opacity:.33+Math.random()*.55,drift:.007+Math.random()*.017};
+      const first=index<78;
+      return {lid,x,end,startY:first?-.085+Math.random()*(lid?.14:.46):-.09,
+        phase:Math.random()*Math.PI*2,delay:first?Math.random()*.38:.45+Math.random()*9.3,
+        duration:lid?.75+Math.random()*1.7:2.35+Math.random()*3.25,
+        radius:1.02+Math.random()*.93,opacity:.74+Math.random()*.25,drift:.005+Math.random()*.015};
     });
     const started=performance.now();
     const draw=now=>{
@@ -534,14 +539,18 @@ function giftSnowEffect(box){
         if(t<1)moving=true;
         if(t<0)continue;
         const phase=Math.min(1,t);
-        const y=-.09+(flake.end+.09)*phase;
+        const y=flake.startY+(flake.end-flake.startY)*phase;
         const sway=Math.sin(flake.phase+phase*7.3)*flake.drift;
         let x=flake.x+sway;
         if(!flake.lid&&y>.15&&y<.85)x=flake.x<.5?Math.min(x,.062):Math.max(x,.93);
         if(flake.lid)x=Math.max(.09,Math.min(.894,x));
-        ctx.globalAlpha=flake.opacity*Math.min(1,phase*10)*(phase===1?.69:1);
+        const alpha=flake.opacity*Math.min(1,phase*20)*(phase===1?.79:1);
         const r=flake.radius/boxWidth;
-        ctx.drawImage(sprite,x-r,y-r*.63,r*2,r*(phase===1?1:1.6));
+        const height=r*(phase===1?1.06:1.72);
+        ctx.globalAlpha=alpha*.4;
+        ctx.drawImage(shadow,x-r*1.13,y-r*.46,r*2.26,height*1.13);
+        ctx.globalAlpha=alpha;
+        ctx.drawImage(sprite,x-r,y-r*.63,r*2,height);
       }
       ctx.globalAlpha=1;
       if(moving)frame=requestAnimationFrame(draw);
