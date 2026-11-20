@@ -328,6 +328,27 @@ body.postcard-finale .mars-corner-ornament{display:none}
    animation:brand-twinkle calc(2.6s + var(--delay) * 22) ease-in-out calc(var(--delay) * -21) infinite;
  }
 }
+
+.gift-box-scene{position:relative;isolation:isolate}
+.gift-snow{position:absolute;inset:-11% -22% -4%;width:144%;height:115%;pointer-events:none;z-index:2}
+.product-mobile-row{display:contents}
+.final-postcard-picture{display:block;width:100%}
+@media(max-width:700px){
+ .products-stage main{padding-bottom:74px}
+ .product-bauble-board{aspect-ratio:auto;max-width:460px}
+ .product-hanging-part{display:none}
+ .product-mobile-row{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(10px,3.5vw,22px);padding:29px 3px 0;margin-bottom:20px}
+ .product-mobile-row::before{content:"";position:absolute;inset:0 2% auto;height:21px;border-bottom:2px solid #6b4e2e;border-radius:0 0 50% 50%;pointer-events:none}
+ .products-stage .product-bauble{position:relative;left:auto;top:auto;width:100%;max-width:214px;justify-self:center;container-type:inline-size}
+ .product-bauble::before,.product-bauble::after{content:"";position:absolute;left:50%;translate:-50% 0;pointer-events:none}
+ .product-bauble::before{top:-13px;width:2px;height:12px;background:#6b4e2e}
+ .product-bauble::after{top:-4px;width:13%;height:8px;border-radius:4px;background:linear-gradient(90deg,#886339,#d9b478,#886339);z-index:1}
+ .product-bauble-flip .product-bauble-note{padding:11% 12%;gap:3px}
+ .product-bauble-flip .product-bauble-note strong{font-size:clamp(11px,9cqw,17px)}
+ .product-bauble-flip .product-bauble-note span{font-size:clamp(9px,6.7cqw,13px);line-height:1.16}
+ .box-stage #scene{overflow:hidden}
+}
+@media(orientation:portrait){.postcard-finale{background:#f1e7da!important}.postcard-finale .final-postcard{object-fit:contain}}
 </style>
 <main>
 <section id="editor" hidden></section>
@@ -459,6 +480,78 @@ function goToStep(target){
 }
 function next(text='Дальше') {return control(text,()=>goToStep(step+1),'primary');}
 
+
+function softSnowFlake(color){
+  const sprite=element('canvas');
+  sprite.width=sprite.height=24;
+  const ctx=sprite.getContext('2d');
+  const glow=ctx.createRadialGradient(12,12,1,12,12,11);
+  glow.addColorStop(0,color);
+  glow.addColorStop(.43,color);
+  glow.addColorStop(1,'transparent');
+  ctx.translate(12,12);
+  ctx.scale(.72,1);
+  ctx.translate(-12,-12);
+  ctx.fillStyle=glow;
+  ctx.fillRect(0,0,24,24);
+  return sprite;
+}
+function giftSnowEffect(box){
+  const canvas=element('canvas','','gift-snow');
+  canvas.setAttribute('aria-hidden','true');
+  const ctx=canvas.getContext('2d');
+  const sprite=softSnowFlake('#fffdf4');
+  let frame=0;
+  function stop(){
+    cancelAnimationFrame(frame);frame=0;
+    ctx.clearRect(-1,-1,3,3);
+  }
+  function play(){
+    stop();
+    const width=canvas.clientWidth,height=canvas.clientHeight;
+    if(!width||!height)return;
+    const dpr=Math.min(devicePixelRatio||1,2);
+    canvas.width=Math.round(width*dpr);
+    canvas.height=Math.round(height*dpr);
+    const unitX=canvas.width/1.44,unitY=canvas.height/1.15;
+    const boxWidth=box.clientWidth;
+    ctx.setTransform(unitX,0,0,unitY,.22*unitX,.11*unitY);
+    const flakes=Array.from({length:175},()=>{
+      const lid=Math.random()<.36;
+      const direction=Math.random()<.5?-1:1;
+      const x=lid?.095+Math.random()*.79:direction<0?-.18+Math.random()*.235:.949+Math.random()*.234;
+      const end=lid?.143+Math.random()*.027:.85+Math.pow(Math.random(),.75)*.17;
+      return {lid,x,end,phase:Math.random()*Math.PI*2,delay:Math.random()*9,duration:lid?1.1+Math.random()*1.65:2.8+Math.random()*3.25,radius:.55+Math.random()*.85,opacity:.33+Math.random()*.55,drift:.007+Math.random()*.017};
+    });
+    const started=performance.now();
+    const draw=now=>{
+      ctx.clearRect(-1,-1,3,3);
+      if(!canvas.isConnected||box.getAttribute('aria-expanded')!=='true'){frame=0;return;}
+      const time=(now-started)/1000;
+      let moving=false;
+      for(const flake of flakes){
+        const t=(time-flake.delay)/flake.duration;
+        if(t<1)moving=true;
+        if(t<0)continue;
+        const phase=Math.min(1,t);
+        const y=-.09+(flake.end+.09)*phase;
+        const sway=Math.sin(flake.phase+phase*7.3)*flake.drift;
+        let x=flake.x+sway;
+        if(!flake.lid&&y>.15&&y<.85)x=flake.x<.5?Math.min(x,.062):Math.max(x,.93);
+        if(flake.lid)x=Math.max(.09,Math.min(.894,x));
+        ctx.globalAlpha=flake.opacity*Math.min(1,phase*10)*(phase===1?.69:1);
+        const r=flake.radius/boxWidth;
+        ctx.drawImage(sprite,x-r,y-r*.63,r*2,r*(phase===1?1:1.6));
+      }
+      ctx.globalAlpha=1;
+      if(moving)frame=requestAnimationFrame(draw);
+      else frame=0;
+    };
+    frame=requestAnimationFrame(draw);
+  }
+  return {canvas,play,stop};
+}
+
 function photoSnowEffect(art,motionEnabled){
   const canvas=element('canvas','','photo-snow');
   canvas.setAttribute('aria-hidden','true');
@@ -483,20 +576,30 @@ function photoSnowEffect(art,motionEnabled){
       seed=(Math.imul(seed,1664525)+1013904223)>>>0;
       return seed/4294967296;
     };
+    const sampleCanvas=element('canvas');
+    sampleCanvas.width=art.naturalWidth;
+    sampleCanvas.height=art.naturalHeight;
+    const sampleContext=sampleCanvas.getContext('2d',{willReadFrequently:true});
+    sampleContext.drawImage(art,0,0);
+    const sprites=samples.map(([sx,sy])=>{
+      const [red,green,blue]=sampleContext.getImageData(sx,sy,1,1).data;
+      return softSnowFlake('rgb('+[red,green,blue].map(c=>Math.round(160+c*.37)).join(',')+')');
+    });
     const particles=waves.flatMap((wave,waveIndex)=>{
       const length=waveIndex===2?467-Math.round(467*.40)-Math.round(467*.275):Math.round(467*wave.share);
       return Array.from({length},()=>{
-        const sample=samples[Math.floor(random()*samples.length)];
+        const sampleIndex=Math.floor(random()*samples.length);
+        const sample=samples[sampleIndex];
         const x=-.806+sample[0]/1536*1.81;
         const baseline=-.055+sample[1]/1536*1.81;
         const phase=random()*Math.PI*2;
-        return {sample,x,baseline,phase,
+        return {sprite:sprites[sampleIndex],x,baseline,phase,
           spread:(random()-.5)*.48+wave.cross,
           lift:wave.lift*(.42+random()*.95),
           delay:wave.delay+random()*.22,
           duration:wave.duration*(.81+random()*.21),
           peak:.28+random()*.17,
-          radius:(.68+random()*1.08)/size,
+          radius:(.48+random()*.91)/size,
           drift:.006+random()*.013};
       });
     });
@@ -523,7 +626,7 @@ function photoSnowEffect(art,motionEnabled){
         const y=p.baseline-p.lift*travel+Math.cos(elapsed*2.2+p.phase)*p.drift*.35*travel;
         const radius=p.radius*(.74+.45*travel);
         context.globalAlpha=Math.min(1,progress*16,(1-progress)*8)*(.59+.32*travel);
-        context.drawImage(art,p.sample[0]-2,p.sample[1]-2,4,4,x-radius,y-radius,radius*2,radius*2);
+        context.drawImage(p.sprite,x-radius,y-radius,radius*2,radius*2);
       }
       context.restore();
       if(moving)frame=requestAnimationFrame(draw);
@@ -643,7 +746,9 @@ function surprise() {
     box.setAttribute('aria-label',open?'Закрыть коробку':'Открыть коробку');
     hint.textContent=open?'Нажмите ещё раз, чтобы закрыть.':'Нажмите на коробку, чтобы открыть.';
     proceed.hidden=!open;
+    if(open)effect.play();else effect.stop();
   },'box-trigger');
+  const effect=giftSnowEffect(box);
   box.setAttribute('aria-expanded','false');
   box.setAttribute('aria-label','Открыть коробку');
   for(const state of ['box-closed','box-open']){
@@ -656,7 +761,9 @@ function surprise() {
     crop.append(picture);
     box.append(crop);
   }
-  layout.append(title,box,hint,proceed);
+  const boxScene=element('div','','gift-box-scene');
+  boxScene.append(box,effect.canvas);
+  layout.append(title,boxScene,hint,proceed);
   scene.append(layout);
 }
 
@@ -745,10 +852,8 @@ function baubles() {
     artwork.style.clipPath='polygon('+outline+')';
     board.append(artwork);
   }
-  const dialog=element('dialog','','product-bauble-dialog');
-  const close=control('Закрыть',()=>dialog.close());
-  const smallBall=element('div','','product-bauble-note');
-  dialog.append(smallBall,close);
+  const rows=Array.from({length:4},()=>element('div','','product-mobile-row'));
+  board.append(...rows);
   const fillNote=(target,name,description)=>{
     target.replaceChildren(element('strong',name),element('span',description));
   };
@@ -758,18 +863,6 @@ function baubles() {
       const open=orb.getAttribute('aria-pressed')==='false';
       orb.setAttribute('aria-pressed',String(open));
       orb.setAttribute('aria-label',open?name+'. '+description+' Перевернуть обратно.':'Открыть описание: '+name);
-      if(open&&matchMedia('(max-width:700px)').matches){
-        const transitions=flip.getAnimations().map(animation=>animation.finished);
-        Promise.allSettled(transitions).then(()=>{
-          if(!orb.isConnected||orb.getAttribute('aria-pressed')!=='true'||dialog.open)return;
-          fillNote(smallBall,name,description);
-          smallBall.style.backgroundImage=back.style.backgroundImage;
-          smallBall.style.backgroundSize=back.style.backgroundSize;
-          smallBall.style.backgroundPosition=back.style.backgroundPosition;
-          dialog.setAttribute('aria-label',name);
-          dialog.showModal();
-        });
-      }
     },'product-bauble');
     orb.style.setProperty('--left',x/1536*100+'%');
     orb.style.setProperty('--top',y/1024*100+'%');
@@ -793,9 +886,9 @@ function baubles() {
     flip.setAttribute('aria-hidden','true');
     flip.append(front,back);
     orb.append(flip);
-    board.append(orb);
+    rows[Math.floor(index/2)].append(orb);
   });
-  scene.append(title,hint,board,next(),dialog);
+  scene.append(title,hint,board,next());
 }
 
 function printGift() {
@@ -874,15 +967,20 @@ function finale() {
   const card=element('img','','final-postcard');
   card.src="assets/f3bf178cfdbb9a26.png";
   card.alt='Компания MARS. С наступающими праздниками! Пусть новый год принесёт здоровье, мир и благополучие. Справа — гастрономическая доска.';
+  const picture=element('picture','','final-postcard-picture');
+  const mobile=element('source');
+  mobile.media='(orientation:portrait)';
+  mobile.srcset="assets/mars-postcard-portrait.png";
+  picture.append(mobile,card);
   const actions=element('div','','row final-postcard-actions');
   const download=control('Скачать открытку',()=>{
     const link=element('a');
-    link.href=card.src;
-    link.download='Финальная открытка Mars — Гастрономическая доска.png';
+    link.href=card.currentSrc||card.src;
+    link.download=matchMedia(mobile.media).matches?'Финальная открытка Mars — для телефона.png':'Финальная открытка Mars — Гастрономическая доска.png';
     link.click();
   },'primary');
   actions.append(download);
-  scene.append(title,card,actions);
+  scene.append(title,picture,actions);
 }
 function render() {
   document.body.classList.toggle('winter-cover',step===0);
