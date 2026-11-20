@@ -317,7 +317,18 @@ body.postcard-finale .mars-corner-ornament{display:none}
 @media(prefers-reduced-motion:reduce){
   .winter-cover .cathedral.stars .cathedral-snow{transform:none}
 }
-.photo-snow{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}</style>
+.photo-snow{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+@keyframes cover-star-fade{0%,100%{opacity:.1}45%{opacity:.8}}
+@media(prefers-reduced-motion:reduce){
+ .winter-cover .cathedral.stars .cathedral-snow i{
+   animation:cover-star-fade calc(3.2s + var(--delay) * 22) ease-in-out calc(var(--delay) * -21) infinite;
+ }
+ .winter-cover .cathedral.stars.motion-requested .cathedral-snow{transform:translate3d(var(--decor-x,0px),var(--decor-y,0px),0)}
+ .winter-cover .cathedral.stars.motion-requested .cathedral-snow i{
+   animation:brand-twinkle calc(2.6s + var(--delay) * 22) ease-in-out calc(var(--delay) * -21) infinite;
+ }
+}
+</style>
 <main>
 <section id="editor" hidden></section>
 <section class="stage" id="stage" hidden><div id="scene"></div><nav class="row" aria-label="Главы"><button id="back">Назад</button><span id="progress"></span><button id="edit">К настройкам</button></nav></section>
@@ -448,7 +459,7 @@ function goToStep(target){
 }
 function next(text='Дальше') {return control(text,()=>goToStep(step+1),'primary');}
 
-function photoSnowEffect(art){
+function photoSnowEffect(art,motionEnabled){
   const canvas=element('canvas','','photo-snow');
   canvas.setAttribute('aria-hidden','true');
   const context=canvas.getContext('2d');
@@ -459,10 +470,9 @@ function photoSnowEffect(art){
     {share:.325,delay:.17,duration:6.8,lift:.21,cross:.12}
   ];
   let frame=0, burst=0;
-  const reduced=matchMedia('(prefers-reduced-motion:reduce)');
   function play(){
     const size=canvas.clientWidth;
-    if(!context||reduced.matches||!size||!art.complete||!art.naturalWidth)return;
+    if(!context||!motionEnabled()||!size||!art.complete||!art.naturalWidth)return;
     cancelAnimationFrame(frame);
     const scale=Math.min(devicePixelRatio||1,2);
     canvas.width=Math.round(size*scale);
@@ -493,7 +503,7 @@ function photoSnowEffect(art){
     const started=performance.now();
     const draw=now=>{
       context.clearRect(0,0,1,1);
-      if(!canvas.isConnected||reduced.matches){frame=0;return;}
+      if(!canvas.isConnected||!motionEnabled()){frame=0;return;}
       const elapsed=(now-started)/1000;
       context.save();
       context.beginPath();
@@ -546,12 +556,13 @@ function cathedralGlobe(reveal) {
     flake.style.setProperty('--drift',(index * 31 % 95 - 47) + 'px');
     snow.append(flake);
   }
-  const photoSnow=photoSnowEffect(art);
-  ball.append(photograph,snow,photoSnow.canvas);
   const reduced=matchMedia('(prefers-reduced-motion:reduce)');
+  const motionEnabled=()=>!reduced.matches||ball.classList.contains('motion-requested');
+  const photoSnow=photoSnowEffect(art,motionEnabled);
+  ball.append(photograph,snow,photoSnow.canvas);
   let active=false, frame=0, x=0, y=0, targetX=0, targetY=0, last=0;
   const draw=time=>{
-    if(!ball.isConnected||reduced.matches){
+    if(!ball.isConnected||!motionEnabled()){
       frame=0;
       last=0;
       return;
@@ -572,7 +583,7 @@ function cathedralGlobe(reveal) {
     if(event.pointerType==='mouse')active=true;
   });
   window.addEventListener('mousemove',event=>{
-    if(!active||!ball.isConnected||reduced.matches)return;
+    if(!active||!ball.isConnected||!motionEnabled())return;
     targetX=-Math.max(-1,Math.min(1,(event.clientX-innerWidth/2)/(innerWidth/2)))*1.5;
     targetY=-Math.max(-1,Math.min(1,(event.clientY-innerHeight/2)/(innerHeight/2)))*1.5;
     if(!frame)frame=requestAnimationFrame(draw);
@@ -581,7 +592,7 @@ function cathedralGlobe(reveal) {
   ball.onclick = () => {
     ball.classList.remove('stir');
     void ball.offsetWidth;
-    ball.classList.add('stir');
+    ball.classList.add('stir','motion-requested');
     photoSnow.play();
     reveal();
   };
