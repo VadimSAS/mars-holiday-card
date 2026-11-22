@@ -253,7 +253,7 @@ body.winter-cover{background:#E8D7C3 radial-gradient(ellipse at 36% 29%,#F4E5D1 
 .winter-cover .opening-copy,.winter-cover .opening>.eyebrow{position:relative;z-index:1}
 .winter-cover .opening-copy h2:focus{outline:none}
 
-body,body.winter-cover,body.box-stage,body.wish-stage,body.products-stage{background:#E8D7C3 url("assets/c3a62cf027c1906e.png") center top / 100vw 100svh no-repeat fixed;color:#1E2A20}
+body,body.winter-cover,body.box-stage,body.wish-stage,body.products-stage{background:#E8D7C3 url("assets/c3a62cf027c1906e.webp") center top / 100vw 100svh no-repeat fixed;color:#1E2A20}
 .winter-cover .cover-photograph{
   mask-image:linear-gradient(to right,transparent,#000 18%,#000 85%,transparent 94%),linear-gradient(to bottom,transparent,#000 9%,#000 85%,transparent);
   mask-composite:intersect;
@@ -359,7 +359,7 @@ body.postcard-finale .mars-corner-ornament{display:none}
 <main>
 <section id="editor" hidden></section>
 <section class="stage" id="stage" hidden><div id="scene"></div><nav class="row" aria-label="Главы"><button id="back">Назад</button><span id="progress"></span><button id="edit">К настройкам</button></nav></section>
-</main><nav class="story-arrows" aria-label="Перелистывание открытки"><button type="button" id="story-prev" aria-label="Предыдущий экран"><span aria-hidden="true"></span></button><button type="button" id="story-next" aria-label="Следующий экран"><span aria-hidden="true"></span></button></nav><img class="mars-corner-ornament" alt="" aria-hidden="true" draggable="false" src="assets/1a89d9730b38a135.png">
+</main><nav class="story-arrows" aria-label="Перелистывание открытки"><button type="button" id="story-prev" aria-label="Предыдущий экран"><span aria-hidden="true"></span></button><button type="button" id="story-next" aria-label="Следующий экран"><span aria-hidden="true"></span></button></nav><img class="mars-corner-ornament" alt="" aria-hidden="true" draggable="false" src="assets/1a89d9730b38a135.webp">
 <dialog id="detail"><form method="dialog"><button>Закрыть</button></form><div id="detail-content"></div></dialog>
 <template id="product-template"><div class="product"><div class="row"><strong></strong><button type="button" class="remove">Удалить</button></div><div class="grid">
 <label>Название товара<input data-field="name" maxlength="120"></label>
@@ -506,7 +506,7 @@ let cachedSnowFlakeAtlas;
 function snowFlakeAtlas(){
   if(!cachedSnowFlakeAtlas){
     const texture=new Image();
-    texture.src="assets/gift-snow-flakes.png";
+    texture.src="assets/gift-snow-flakes.webp";
     const shapes=[[63,91,252,205],[425,78,246,218],[773,120,244,165],[1131,108,239,172],[65,430,223,214],[414,432,260,210],[784,439,238,197],[1148,434,236,184],[128,831,134,99],[412,821,246,153],[788,780,220,180],[1141,780,240,205]];
     cachedSnowFlakeAtlas={texture,shapes};
   }
@@ -715,7 +715,8 @@ function cathedralGlobe(reveal) {
   const photograph=element('span','','cover-photograph');
   photograph.setAttribute('aria-hidden','true');
   const art=element('img','','cover-photograph-image');
-  art.src='assets/8e0a78ae1672738d.png';
+  art.fetchPriority='high';
+  art.src='assets/8e0a78ae1672738d.webp';
   art.alt='';
   art.draggable=false;
   photograph.append(art);
@@ -826,7 +827,7 @@ function surprise() {
   for(const state of ['box-closed','box-open']){
     const crop=element('span','','box-frame '+state);
     const picture=element('img');
-    picture.src="assets/43c4ac8978588a75.png";
+    picture.src="assets/43c4ac8978588a75.webp";
     picture.alt='';
     picture.draggable=false;
     crop.setAttribute('aria-hidden','true');
@@ -851,7 +852,7 @@ function wishes(){
   const read=new Set();
   const proceed=next();
   proceed.hidden=true;
-  const source="assets/9587f31fc55bd5c1.png";
+  const source="assets/9587f31fc55bd5c1.webp";
   gift.wishes.forEach((wish,index)=>{
     const number=index+1;
     const envelope=control('',()=>{
@@ -911,8 +912,8 @@ function baubles() {
   const products=[["Tartuffo","Голландская гауда с чёрным летним трюфелем."],["Румер Свит","Выдержанный сыр со сладковатым вкусом и ореховыми нотками. Победитель своей категории на чемпионате мира 2022 года."],["Chèvrano XO","Козий сыр 12-месячной выдержки. Бронзовый призёр чемпионата мира 2024 года."],["Испанский хамон","Хамон Серрано из Испании, тонко нарезанный для подачи."],["Бастурма","Бастурма из мраморной говядины, приготовленная по традиционному рецепту."],["Сыровяленая вырезка","Премиальная сыровяленая говяжья вырезка, тонко нарезанная для подачи."],["Брусничный паштет","Паштет из индейки с брусникой. Один из паштетов, которые подают в Кремле и министерствах."],["Сушёный инжир","Деликатес, который отлично сочетается с выдержанными сырами."]];
   const positions=[[102,202,313],[442,205,313],[778,205,314],[1117,202,314],[99,649,318],[440,651,315],[779,651,315],[1117,648,319]];
   const clearPositions=[[102,204,310],[440,208,312],[778,207,312],[1119,203,313],[101,650,312],[440,650,312],[779,650,312],[1119,650,313]];
-  const asset="assets/df2b0ea0d7ac9ed8.png";
-  const clearAsset="assets/167c1a23a467d181.png";
+  const asset="assets/df2b0ea0d7ac9ed8.webp";
+  const clearAsset="assets/167c1a23a467d181.webp";
   const title=element('h2','Гастрономическая доска','product-wish-heading');
   const hint=element('p','Нажмите на шарик, чтобы узнать о продукте.','wish-instruction');
   const board=element('div','','product-bauble-board');
@@ -1039,18 +1040,19 @@ function saveGlobe() {
 function finale() {
   const title=element('h2','С наступающими праздниками!','final-postcard-title');
   const card=element('img','','final-postcard');
-  card.src="assets/mars-postcard-wallpaper.png";
+  card.src="assets/mars-postcard-wallpaper.webp";
   card.alt='Компания MARS. С наступающими праздниками! Пусть новый год принесёт здоровье, мир и благополучие. На открытке — гастрономическая доска.';
   const picture=element('picture','','final-postcard-picture');
   const mobile=element('source');
   mobile.media='(max-width:700px), (pointer:coarse) and (max-width:1000px)';
-  mobile.srcset="assets/mars-postcard-portrait.png";
+  mobile.srcset="assets/mars-postcard-portrait.webp";
   picture.append(mobile,card);
   const actions=element('div','','row final-postcard-actions');
   const download=control('Скачать открытку',()=>{
     const link=element('a');
-    link.href=card.currentSrc||card.src;
-    link.download=matchMedia(mobile.media).matches?'Финальная открытка Mars — для телефона.png':'Финальная открытка Mars — для рабочего стола.png';
+    const portrait=matchMedia(mobile.media).matches;
+    link.href=portrait?'assets/mars-postcard-portrait.png':'assets/mars-postcard-wallpaper.png';
+    link.download=portrait?'Финальная открытка Mars — для телефона.png':'Финальная открытка Mars — для рабочего стола.png';
     link.click();
   },'primary');
   actions.append(download);
