@@ -523,7 +523,6 @@ function giftSnowEffect(box){
   canvas.setAttribute('aria-hidden','true');
   const ctx=canvas.getContext('2d');
   const sprite=softSnowFlake('#fffcf6');
-  const {texture,shapes}=snowFlakeAtlas();
   const shadow=softSnowFlake('#775f4c');
   let frame=0;
   function stop(){
@@ -534,6 +533,7 @@ function giftSnowEffect(box){
     stop();
     const width=canvas.clientWidth,height=canvas.clientHeight;
     if(!width||!height)return;
+    const {texture,shapes}=snowFlakeAtlas();
     const dpr=Math.min(devicePixelRatio||1,2);
     canvas.width=Math.round(width*dpr);
     canvas.height=Math.round(height*dpr);
@@ -600,7 +600,6 @@ function photoSnowEffect(art,motionEnabled){
   const canvas=element('canvas','','photo-snow');
   canvas.setAttribute('aria-hidden','true');
   const context=canvas.getContext('2d');
-  const {texture,shapes}=snowFlakeAtlas();
   const samples=[[1053,588],[1066,588],[1092,588],[1105,588],[1118,588],[1131,588],[1157,588],[1183,588],[1196,588],[1248,588],[1261,588],[936,595],[949,595],[962,595],[975,595],[1001,595],[1027,595],[1040,595],[1053,595],[1066,595],[1079,595],[1092,595],[1105,595],[1118,595],[1131,595],[1144,595],[1196,595],[1222,595],[1235,595],[1248,595],[1261,595],[1274,595],[1287,595],[923,602],[936,602],[949,602],[975,602],[1001,602],[1014,602],[1040,602],[1053,602],[1066,602],[1105,602],[1131,602],[1144,602],[1157,602],[1170,602],[1183,602],[1209,602],[1222,602],[1235,602],[1248,602],[1261,602],[1274,602],[1287,602],[1300,602],[1339,602],[910,609],[923,609],[936,609],[949,609],[962,609],[975,609],[988,609],[1001,609],[1014,609],[1066,609],[1079,609],[1092,609],[1118,609],[1131,609],[1144,609],[1157,609],[1183,609],[1196,609],[1209,609],[1222,609],[1235,609],[1248,609],[1261,609],[1300,609],[923,616],[936,616],[949,616],[962,616],[975,616],[988,616],[1001,616],[1014,616],[1027,616],[1040,616],[1053,616],[1066,616],[1079,616],[1092,616],[1105,616],[1118,616],[1131,616],[1144,616],[1170,616],[1183,616],[1196,616],[1235,616],[1248,616],[1261,616],[1274,616],[1287,616],[923,623],[936,623],[949,623],[962,623],[975,623],[988,623],[1001,623],[1014,623],[1027,623],[1040,623],[1053,623],[1079,623],[1092,623],[1105,623],[1131,623],[1144,623],[1157,623],[1170,623],[1183,623],[1196,623],[962,630],[1001,630],[1066,630],[1131,630],[1144,630],[1183,630],[1196,630],[1209,630],[1222,630],[910,637],[1209,637]];
   const waves=[
     {share:.40,delay:0,duration:6.8,lift:.27,cross:.14},
@@ -610,7 +609,10 @@ function photoSnowEffect(art,motionEnabled){
   let frame=0, burst=0;
   function play(){
     const size=canvas.clientWidth;
-    if(!context||!motionEnabled()||!size||!art.complete||!art.naturalWidth)return;
+    if(!context||!motionEnabled()||!size)return;
+    const {texture,shapes}=snowFlakeAtlas();
+    if(!art.complete){art.decode().then(()=>{if(canvas.isConnected)play();},()=>{});return;}
+    if(!art.naturalWidth)return;
     cancelAnimationFrame(frame);
     const scale=Math.min(devicePixelRatio||1,2);
     canvas.width=Math.round(size*scale);
@@ -827,7 +829,7 @@ function surprise() {
   for(const state of ['box-closed','box-open']){
     const crop=element('span','','box-frame '+state);
     const picture=element('img');
-    picture.src="assets/43c4ac8978588a75.webp";
+    picture.src=boxArtwork;
     picture.alt='';
     picture.draggable=false;
     crop.setAttribute('aria-hidden','true');
@@ -852,7 +854,7 @@ function wishes(){
   const read=new Set();
   const proceed=next();
   proceed.hidden=true;
-  const source="assets/9587f31fc55bd5c1.webp";
+  const source=wishArtwork;
   gift.wishes.forEach((wish,index)=>{
     const number=index+1;
     const envelope=control('',()=>{
@@ -912,8 +914,8 @@ function baubles() {
   const products=[["Tartuffo","Голландская гауда с чёрным летним трюфелем."],["Румер Свит","Выдержанный сыр со сладковатым вкусом и ореховыми нотками. Победитель своей категории на чемпионате мира 2022 года."],["Chèvrano XO","Козий сыр 12-месячной выдержки. Бронзовый призёр чемпионата мира 2024 года."],["Испанский хамон","Хамон Серрано из Испании, тонко нарезанный для подачи."],["Бастурма","Бастурма из мраморной говядины, приготовленная по традиционному рецепту."],["Сыровяленая вырезка","Премиальная сыровяленая говяжья вырезка, тонко нарезанная для подачи."],["Брусничный паштет","Паштет из индейки с брусникой. Один из паштетов, которые подают в Кремле и министерствах."],["Сушёный инжир","Деликатес, который отлично сочетается с выдержанными сырами."]];
   const positions=[[102,202,313],[442,205,313],[778,205,314],[1117,202,314],[99,649,318],[440,651,315],[779,651,315],[1117,648,319]];
   const clearPositions=[[102,204,310],[440,208,312],[778,207,312],[1119,203,313],[101,650,312],[440,650,312],[779,650,312],[1119,650,313]];
-  const asset="assets/df2b0ea0d7ac9ed8.webp";
-  const clearAsset="assets/167c1a23a467d181.webp";
+  const asset=productArtwork;
+  const clearAsset=productReverseArtwork;
   const title=element('h2','Гастрономическая доска','product-wish-heading');
   const hint=element('p','Нажмите на шарик, чтобы узнать о продукте.','wish-instruction');
   const board=element('div','','product-bauble-board');
@@ -1037,16 +1039,54 @@ function saveGlobe() {
   picture.src=gift.board;
 }
 
+const boxArtwork='assets/43c4ac8978588a75.webp';
+const wishArtwork='assets/9587f31fc55bd5c1.webp';
+const productArtwork='assets/df2b0ea0d7ac9ed8.webp';
+const productReverseArtwork='assets/167c1a23a467d181.webp';
+const desktopPostcard='assets/mars-postcard-wallpaper.webp';
+const portraitPostcard='assets/mars-postcard-portrait.webp';
+const portraitMedia='(max-width:700px), (pointer:coarse) and (max-width:1000px)';
+const nextArtwork=new Map([
+  [surprise,()=>[boxArtwork]],
+  [baubles,()=>[productArtwork,productReverseArtwork]],
+  [wishes,()=>[wishArtwork]],
+  [finale,()=>[matchMedia(portraitMedia).matches?portraitPostcard:desktopPostcard]]
+]);
+const preloadedArtwork=new Map();
+
+function preloadNextScreen(){
+  if(navigator.connection?.saveData)return;
+  const current=step;
+  const nextStep=steps[current+1];
+  if(!nextArtwork.has(nextStep)||renderedSteps.has(current+1))return;
+  const load=()=>{
+    if(step!==current||steps[current+1]!==nextStep||renderedSteps.has(current+1))return;
+    for(const source of nextArtwork.get(nextStep)()){
+      if(preloadedArtwork.has(source))continue;
+      const image=new Image();
+      image.fetchPriority='low';
+      image.addEventListener('error',()=>preloadedArtwork.delete(source),{once:true});
+      preloadedArtwork.set(source,image);
+      image.src=source;
+    }
+  };
+  const schedule=()=>typeof requestIdleCallback==='function'
+    ? requestIdleCallback(load,{timeout:350})
+    : setTimeout(load,0);
+  if(document.readyState==='complete')schedule();
+  else window.addEventListener('load',schedule,{once:true});
+}
+
 function finale() {
   const title=element('h2','С наступающими праздниками!','final-postcard-title');
   const card=element('img','','final-postcard');
-  card.src="assets/mars-postcard-wallpaper.webp";
   card.alt='Компания MARS. С наступающими праздниками! Пусть новый год принесёт здоровье, мир и благополучие. На открытке — гастрономическая доска.';
   const picture=element('picture','','final-postcard-picture');
   const mobile=element('source');
-  mobile.media='(max-width:700px), (pointer:coarse) and (max-width:1000px)';
-  mobile.srcset="assets/mars-postcard-portrait.webp";
+  mobile.media=portraitMedia;
+  mobile.srcset=portraitPostcard;
   picture.append(mobile,card);
+  card.src=desktopPostcard;
   const actions=element('div','','row final-postcard-actions');
   const download=control('Скачать открытку',()=>{
     const link=element('a');
@@ -1079,6 +1119,7 @@ function render() {
   title.tabIndex = -1;
   title.focus({preventScroll:true});
   window.scrollTo(0,0);
+  preloadNextScreen();
 }
 function show() {
   steps = [welcome,surprise,...(gift.items.length?[baubles]:[]),wishes,finale];
