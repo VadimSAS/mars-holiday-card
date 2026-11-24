@@ -295,7 +295,12 @@ body.postcard-finale{background:#F5F2ED}
 .products-stage .product-bauble,.products-stage .product-bauble:hover{background:transparent}
 
 .gold50-corner-ornament{position:fixed;display:block;z-index:3;top:max(4px,env(safe-area-inset-top));right:max(5px,env(safe-area-inset-right));width:clamp(72px,11vw,156px);height:auto;pointer-events:none;user-select:none}
-body.postcard-finale .gold50-corner-ornament{display:none}
+body.postcard-finale .gold50-corner-ornament{width:clamp(85px,10vw,148px)}
+.winter-cover .gold50-sender-plain{color:#1E2A20;font-family:"Century Gothic","AppleGothic","URW Gothic L",Arial,sans-serif;font-style:normal;font-weight:400;letter-spacing:-.035em}
+@media(max-width:600px){
+  .winter-cover .opening--center .gold50-sender{font-size:clamp(24px,8vw,34px)}
+  body.postcard-finale .gold50-corner-ornament{width:clamp(52px,15vw,75px)}
+}
 @media(max-width:600px){.gold50-corner-ornament{width:clamp(46px,15vw,72px)}}
 @media print{.gold50-corner-ornament{display:none}}
 
@@ -788,8 +793,14 @@ function cathedralGlobe(reveal) {
 
 function welcome() {
   const opening = element('div','','opening opening--center');
-  const sender = element('p','Золотые 50','eyebrow');
-  sender.append(element('br'),'поздравляет');
+  const sender = element('p','','eyebrow gold50-sender');
+  sender.append(
+    element('span','Клуб','gold50-sender-plain'),
+    ' ',
+    element('span','Золотые 50'),
+    element('br'),
+    element('span','поздравляет','gold50-sender-plain')
+  );
   const copy = element('div','','opening-copy');
   const title = element('h2','Встряхните ');
   title.append(element('em','снежный шар'));
@@ -1114,7 +1125,6 @@ function render() {
   }
   get('story-prev').disabled=step===0;
   get('story-next').disabled=step===steps.length-1;
-  document.querySelector('.gold50-corner-ornament').hidden=step===steps.length-1;
   get('back').hidden = step===0;
   get('progress').textContent = 'Глава '+(step+1)+' из '+steps.length;
   const title = scene.querySelector('h2');
