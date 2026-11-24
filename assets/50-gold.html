@@ -281,6 +281,13 @@ body.postcard-finale{background:#F5F2ED}
 .postcard-finale #scene{width:100%;min-height:100svh;display:grid;place-items:center}
 .postcard-finale .final-postcard{display:block;width:100%;height:100svh;max-width:none;margin:0;border-radius:0;box-shadow:none;object-fit:cover;object-position:center}
 .postcard-finale .final-postcard-actions{position:fixed;z-index:2;left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));margin:0}
+.final-postcard-actions .gift-order{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 22px;border-radius:14.4px;background:#1E2A20;color:#F5F2ED;font:italic 400 18px/24px KollektivLora,Georgia,serif;text-decoration:none}
+.final-postcard-actions .gift-order:hover{background:#293B2C}
+.final-postcard-actions .gift-order:focus-visible{outline:3px solid #6B4E2E;outline-offset:3px}
+@media(max-width:480px){
+  .postcard-finale .final-postcard-actions{right:max(16px,env(safe-area-inset-right));justify-content:flex-start;gap:6px}
+  .final-postcard-actions button.primary,.final-postcard-actions .gift-order{font-size:clamp(12px,4vw,16px);padding:10px clamp(8px,3vw,14px);white-space:nowrap}
+}
 @media(max-aspect-ratio:1/1){.postcard-finale .final-postcard{object-fit:contain}}
 @media print{.postcard-finale .final-postcard{height:auto;object-fit:contain}.postcard-finale .final-postcard-actions{display:none}}
 
@@ -295,11 +302,10 @@ body.postcard-finale{background:#F5F2ED}
 .products-stage .product-bauble,.products-stage .product-bauble:hover{background:transparent}
 
 .gold50-corner-ornament{position:fixed;display:block;z-index:3;top:max(4px,env(safe-area-inset-top));right:max(5px,env(safe-area-inset-right));width:clamp(72px,11vw,156px);height:auto;pointer-events:none;user-select:none}
-body.postcard-finale .gold50-corner-ornament{width:clamp(85px,10vw,148px)}
+body.postcard-finale .gold50-corner-ornament{display:none}
 .winter-cover .gold50-sender-plain{color:#1E2A20;font-family:"Century Gothic","AppleGothic","URW Gothic L",Arial,sans-serif;font-style:normal;font-weight:400;letter-spacing:-.035em}
 @media(max-width:600px){
   .winter-cover .opening--center .gold50-sender{font-size:clamp(24px,8vw,34px)}
-  body.postcard-finale .gold50-corner-ornament{width:clamp(52px,15vw,75px)}
 }
 @media(max-width:600px){.gold50-corner-ornament{width:clamp(46px,15vw,72px)}}
 @media print{.gold50-corner-ornament{display:none}}
@@ -1093,7 +1099,7 @@ function preloadNextScreen(){
 function finale() {
   const title=element('h2','С наступающими праздниками!','final-postcard-title');
   const card=element('img','','final-postcard');
-  card.alt='Золотые 50. С наступающими праздниками! Пусть новый год принесёт здоровье, мир и благополучие. На открытке — гастрономическая доска.';
+  card.alt='Клуб Золотые 50. С наступающими праздниками! Пусть новый год принесёт здоровье, мир и благополучие. На открытке — гастрономическая доска и красный шарик с золотым логотипом клуба.';
   const picture=element('picture','','final-postcard-picture');
   const mobile=element('source');
   mobile.media=portraitMedia;
@@ -1108,7 +1114,9 @@ function finale() {
     link.download=portrait?'Финальная открытка Золотые 50 — для телефона.png':'Финальная открытка Золотые 50 — для рабочего стола.png';
     link.click();
   },'primary');
-  actions.append(download);
+  const order=element('a','Заказать подарок','gift-order');
+  order.href='/corporate-gifts';
+  actions.append(download,order);
   scene.append(title,picture,actions);
 }
 function render() {
